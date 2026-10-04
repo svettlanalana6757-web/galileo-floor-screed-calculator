@@ -7,7 +7,7 @@ const test = require('node:test');
 const vm = require('node:vm');
 
 const scriptPath = path.join(__dirname, '..', 'fixed', 'script.js');
-const source = fs.readFileSync(scriptPath, 'utf8');
+const source = fs.readFileSync(scriptPath, 'utf8').replace(/\r\n/g, '\n');
 const returnAnchor = '        return this;\n    };\n})();';
 const testHook = [
     '        this.__test = {',
