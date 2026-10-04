@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "^(amo_config\.php|tokens\.json|auth_log\.txt)$">
+    Require all denied
+</FilesMatch>

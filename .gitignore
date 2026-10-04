@@ -1,0 +1,37 @@
+# Local secrets and runtime state
+.env
+.env.*
+!.env.example
+**/staff_data.json
+**/tokens.json
+**/auth_log.txt
+**/*.log
+**/logs/
+
+# Generated/local tooling files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+node_modules/
+*.zip
+.DS_Store
+
+# Source CSVs are stored at repository root; do not duplicate them in the deploy bundle.
+/fixed/All_Price_All_Marki/
+
+# Legacy files from the pre-audit project contain superseded code and/or secrets.
+/index.php
+/index.html
+/script.js
+/staff.php
+/staff_data.json
+/style.css
+/jquery.min.js
+/prices_data.js
+/bootstrap-grid.min.css
+/galileo-logo.jpg
+/amo/
+/widget_package/
+/AUDIT_REPORT.md
+/.htaccess
