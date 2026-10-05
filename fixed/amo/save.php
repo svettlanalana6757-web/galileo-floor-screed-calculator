@@ -8,6 +8,7 @@ if (!is_file($amoLib)) {
 require_once $amoLib;
 require_once __DIR__ . '/request_validation.php';
 
+calc_require_authenticated_session();
 $data = calc_read_request();
 $text = calc_string_field($data, 'text', 12000, true);
 $entity = calc_string_field($data, 'entity', 20);

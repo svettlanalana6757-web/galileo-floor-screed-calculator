@@ -579,7 +579,8 @@
                 order: order,
                 contacts: val('fp_contacts').trim(),
                 address: val('fp_address').trim(),
-                subdomain: SUBDOMAIN
+                subdomain: SUBDOMAIN,
+                csrf_token: getCsrfToken()
             };
 
             // Режим виджета: пишем примечание в текущую сделку (в карточке amoCRM).
@@ -649,6 +650,7 @@
 
             jQuery.ajax({
                 url: url, method: 'POST', contentType: 'application/json',
+                headers: { 'X-CSRF-Token': getCsrfToken() },
                 data: JSON.stringify(payload),
                 success: onOk, error: onErr
             });

@@ -7,7 +7,7 @@
  * Выход из аккаунта: https://widgets.pvzakharov.ru/calc-2/?logout
  */
 
-session_start();
+require_once __DIR__ . '/session_bootstrap.php';
 
 $calcPasswordEnv = getenv('CALC_PASSWORD');
 if ($calcPasswordEnv === false || $calcPasswordEnv === '') {
@@ -90,10 +90,9 @@ if (isset($_POST['calc_pass'])) {
     $inputPass = (string)$_POST['calc_pass'];
     $loginResult = verifyLoginAttempt($inputPass);
     if ($loginResult['status'] === 'success') {
+        session_regenerate_id(true);
         $_SESSION['calc_login_ok'] = 1;
-        if (!isset($_SESSION['csrf_token']) || empty($_SESSION['csrf_token'])) {
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-        }
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     } elseif ($loginResult['status'] === 'blocked') {
         http_response_code(429);
         header('Retry-After: ' . (int)$loginResult['retry_after']);

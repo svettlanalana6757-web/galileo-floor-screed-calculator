@@ -1,9 +1,46 @@
 <?php
 /** Shared input validation for public calculator-to-CRM endpoints. */
 
+require_once dirname(__DIR__) . '/session_bootstrap.php';
+
 function calc_bad_request($message)
 {
     amo_json(array('error' => 'bad_request', 'message' => $message), 400);
+}
+
+function calc_require_authenticated_session()
+{
+    if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Allow: POST');
+        amo_json(array('error' => 'method_not_allowed'), 405);
+    }
+    if (!isset($_SESSION['calc_login_ok']) || $_SESSION['calc_login_ok'] !== 1) {
+        amo_json(array('error' => 'unauthorized'), 401);
+    }
+
+    $csrfToken = isset($_SERVER['HTTP_X_CSRF_TOKEN'])
+        ? (string)$_SERVER['HTTP_X_CSRF_TOKEN']
+        : '';
+    if (!isset($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token']) || $csrfToken === '' || !hash_equals($_SESSION['csrf_token'], $csrfToken)) {
+        amo_json(array('error' => 'csrf_failed'), 403);
+    }
+
+    $now = time();
+    $windowSeconds = 60;
+    $maxRequests = 30;
+    $recentRequests = isset($_SESSION['amo_write_requests']) && is_array($_SESSION['amo_write_requests'])
+        ? $_SESSION['amo_write_requests']
+        : array();
+    $recentRequests = array_values(array_filter($recentRequests, function ($timestamp) use ($now, $windowSeconds) {
+        return is_int($timestamp) && $timestamp > $now - $windowSeconds;
+    }));
+    if (count($recentRequests) >= $maxRequests) {
+        $retryAfter = max(1, $recentRequests[0] + $windowSeconds - $now);
+        header('Retry-After: ' . $retryAfter);
+        amo_json(array('error' => 'rate_limited'), 429);
+    }
+    $recentRequests[] = $now;
+    $_SESSION['amo_write_requests'] = $recentRequests;
 }
 
 function calc_read_request($maxBytes = 32768)
